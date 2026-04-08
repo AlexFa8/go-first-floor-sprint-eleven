@@ -1,0 +1,33 @@
+name: Docker Build Test
+
+on:
+  pull_request:
+    branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t parcel-tracker:test .
+    
+    - name: Verify image exists
+      run: |
+        docker images | grep parcel-tracker
+    
+    - name: Run container test
+      run: |
+        docker run --rm parcel-tracker:test &
+        sleep 3
+        docker ps | grep parcel-tracker
+        echo "Container started successfully"
